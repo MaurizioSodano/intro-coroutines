@@ -3,7 +3,6 @@ package contributors
 import contributors.Contributors.LoadingStatus.*
 import contributors.Variant.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.swing.Swing
 import tasks.*
 import java.awt.event.ActionListener
 import javax.swing.SwingUtilities
@@ -20,7 +19,11 @@ enum class Variant {
     CHANNELS          // Request7Channels
 }
 
-interface Contributors: CoroutineScope {
+fun List<User>.aggregate(): List<User> = groupBy { it.login }
+    .map { (login, group) -> User(login, group.sumOf { it.contributions }) }
+    .sortedByDescending { it.contributions }
+
+interface Contributors : CoroutineScope {
 
     val job: Job
 
@@ -56,7 +59,7 @@ interface Contributors: CoroutineScope {
         when (getSelectedVariant()) {
             BLOCKING -> { // Blocking UI thread
                 val users = loadContributorsBlocking(service, req)
-                updateResults(users, startTime)
+                updateResults(users.aggregate(), startTime)
             }
             BACKGROUND -> { // Blocking a background thread
                 loadContributorsBackground(service, req) { users ->
@@ -178,8 +181,7 @@ interface Contributors: CoroutineScope {
         val params = getParams()
         if (params.username.isEmpty() && params.password.isEmpty()) {
             removeStoredParams()
-        }
-        else {
+        } else {
             saveParams(params)
         }
     }
