@@ -14,7 +14,7 @@ suspend fun loadContributorsChannels(
         val repos = service
             .getOrgRepos(req.org)
             .also { logRepos(req, it) }
-            .bodyList().filter { repo -> utmRepos.contains(repo.name) }
+            .bodyList()//.filter { repo -> utmRepos.contains(repo.name) }
         val channel = Channel<List<User>>()
         for (repo in repos) {
             launch {

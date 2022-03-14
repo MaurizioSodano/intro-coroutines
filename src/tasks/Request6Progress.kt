@@ -22,7 +22,7 @@ suspend fun loadContributorsProgress(
     val repos = service
         .getOrgRepos(req.org)
         .also { logRepos(req, it) }
-        .bodyList().filter { repo-> utmRepos.contains(repo.name) }
+        .bodyList()//.filter { repo-> utmRepos.contains(repo.name) }
 
     var allUsers = emptyList<User>()
     for ((index, repo) in repos.withIndex()) {
